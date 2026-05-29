@@ -102,6 +102,79 @@ setup_hotkey_gnome() {
   gsettings set "$schema.custom-keybinding:$path" binding "$binding"
 }
 
+detect_desktop_installer() {
+  case "${XDG_CURRENT_DESKTOP:-}" in
+    *KDE*) echo "kde" ;;
+    *GNOME*) echo "gnome" ;;
+    *) echo "unknown" ;;
+  esac
+}
+
+main() {
+  echo "Installing Screenshot to AI..."
+
+  # 1. Copy the engine.
+  mkdir -p "$BIN_DEST"
+  cp "$SCRIPT_DIR/bin/screenshot-to-ai.sh" "$BIN_DEST/screenshot-to-ai.sh"
+  chmod +x "$BIN_DEST/screenshot-to-ai.sh"
+  echo "Installed engine to $BIN_DEST/screenshot-to-ai.sh"
+
+  # 2. Choose an AI destination.
+  echo
+  echo "Choose your AI destination:"
+  echo "  1) Google AI Mode (default)"
+  echo "  2) ChatGPT"
+  echo "  3) Perplexity"
+  echo "  4) Google Gemini"
+  echo "  5) Claude"
+  echo "  6) Custom URL"
+  printf "Selection [1]: "
+  read -r choice
+  choice="${choice:-1}"
+  local url
+  if [ "$choice" = "6" ]; then
+    printf "Enter the full URL: "
+    read -r url
+  else
+    url="$(ai_url_for_choice "$choice")"
+  fi
+  if [ -z "$url" ]; then
+    echo "Invalid choice; defaulting to Google AI Mode."
+    url="$(ai_url_for_choice 1)"
+  fi
+  write_config "$url"
+  echo "Saved AI destination: $url"
+
+  # 3. Choose the hotkey.
+  echo
+  printf "Hotkey combo [Meta+Shift+Z]: "
+  read -r combo
+  combo="${combo:-Meta+Shift+Z}"
+
+  # 4. Register the hotkey for this desktop.
+  local desktop
+  desktop="$(detect_desktop_installer)"
+  case "$desktop" in
+    kde)
+      setup_hotkey_kde "$combo"
+      echo "Registered KDE shortcut: $combo"
+      echo "NOTE: On KDE the shortcut activates after you log out and back in."
+      ;;
+    gnome)
+      setup_hotkey_gnome "$combo"
+      echo "Registered GNOME shortcut: $combo (active immediately)."
+      ;;
+    *)
+      echo "Could not detect KDE or GNOME. The engine is installed at"
+      echo "  $BIN_DEST/screenshot-to-ai.sh"
+      echo "Bind it to a hotkey manually via your desktop's keyboard settings."
+      ;;
+  esac
+
+  echo
+  echo "Done. Press $combo, drag a box, then paste (Ctrl+V) into the AI page and ask."
+}
+
 # Run main only when executed directly (not when sourced by tests).
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   main "$@"
