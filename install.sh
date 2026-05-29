@@ -54,6 +54,54 @@ write_config() {
   sed -i "s|^AI_URL=.*|AI_URL=\"$escaped\"|" "$dest"
 }
 
+setup_hotkey_kde() {
+  # setup_hotkey_kde <combo>
+  local combo="$1"
+  local desktop_file="${KDE_DESKTOP_FILE:-$HOME/.local/share/applications/screenshot-to-ai.desktop}"
+  mkdir -p "$(dirname "$desktop_file")"
+  cat > "$desktop_file" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Screenshot to AI
+Comment=Capture a screen region and open your AI of choice
+Exec=$HOME/.local/bin/screenshot-to-ai.sh
+Icon=spectacle
+Terminal=false
+NoDisplay=true
+X-KDE-GlobalAccel-CommandShortcut=true
+EOF
+  # Register the shortcut binding (skipped in tests via KDE_SKIP_KGLOBAL).
+  if [ -z "${KDE_SKIP_KGLOBAL:-}" ] && command -v kwriteconfig6 >/dev/null 2>&1; then
+    kwriteconfig6 --file kglobalshortcutsrc --group "screenshot-to-ai.desktop" \
+      --key "_k_friendly_name" "Screenshot to AI"
+    kwriteconfig6 --file kglobalshortcutsrc --group "screenshot-to-ai.desktop" \
+      --key "_launch" "$combo,none,Screenshot to AI"
+  fi
+}
+
+setup_hotkey_gnome() {
+  # setup_hotkey_gnome <combo>
+  local combo="$1"
+  if ! command -v gsettings >/dev/null 2>&1; then
+    return 0
+  fi
+  local schema="org.gnome.settings-daemon.plugins.media-keys"
+  local path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/screenshot-to-ai/"
+  local binding list
+  binding="$(combo_to_gnome "$combo")"
+
+  list="$(gsettings get "$schema" custom-keybindings)"
+  case "$list" in
+    "@as []"|"[]")        list="['$path']" ;;
+    *"$path"*)            : ;; # already present
+    *)                    list="${list%]}, '$path']" ;;
+  esac
+  gsettings set "$schema" custom-keybindings "$list"
+  gsettings set "$schema.custom-keybinding:$path" name "Screenshot to AI"
+  gsettings set "$schema.custom-keybinding:$path" command "$HOME/.local/bin/screenshot-to-ai.sh"
+  gsettings set "$schema.custom-keybinding:$path" binding "$binding"
+}
+
 # Run main only when executed directly (not when sourced by tests).
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   main "$@"

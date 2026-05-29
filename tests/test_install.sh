@@ -35,4 +35,13 @@ assert_eq "$(combo_to_gnome 'Meta+Shift+Z')" "<Super><Shift>z" "Meta+Shift+Z -> 
 assert_eq "$(combo_to_gnome 'Ctrl+Alt+P')" "<Control><Alt>p" "Ctrl+Alt+P -> GNOME"
 assert_eq "$(combo_to_gnome 'Meta+S')" "<Super>s" "Meta+S -> GNOME"
 
+# setup_hotkey_kde writes a launcher .desktop with the command-shortcut flag.
+tmpdesk="$(mktemp)"
+KDE_DESKTOP_FILE="$tmpdesk" KDE_SKIP_KGLOBAL=1 setup_hotkey_kde "Meta+Shift+Z" >/dev/null 2>&1
+content="$(cat "$tmpdesk")"
+assert_contains "$content" "X-KDE-GlobalAccel-CommandShortcut=true" "kde launcher has accel flag"
+assert_contains "$content" "Exec=$HOME/.local/bin/screenshot-to-ai.sh" "kde launcher Exec path"
+assert_contains "$content" "Name=Screenshot to AI" "kde launcher name"
+rm -f "$tmpdesk"
+
 finish
