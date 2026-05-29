@@ -44,4 +44,12 @@ assert_contains "$content" "Exec=$HOME/.local/bin/screenshot-to-ai.sh" "kde laun
 assert_contains "$content" "Name=Screenshot to AI" "kde launcher name"
 rm -f "$tmpdesk"
 
+# remove_engine deletes the installed engine script.
+tmpbin="$(mktemp -d)"
+touch "$tmpbin/screenshot-to-ai.sh"
+( . uninstall.sh; BIN_DEST="$tmpbin" remove_engine )
+[ -e "$tmpbin/screenshot-to-ai.sh" ] && rc=1 || rc=0
+assert_eq "$rc" "0" "remove_engine deletes the script"
+rm -rf "$tmpbin"
+
 finish
