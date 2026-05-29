@@ -73,9 +73,14 @@ open_url() {
   fi
 }
 
+backend_available() {
+  # backend_available "<command string>" — true if the first word (the binary) is on PATH.
+  command -v "${1%% *}" >/dev/null 2>&1
+}
+
 main() {
   load_config
-  local desktop cmd
+  local desktop cmd bin
   desktop="$(detect_desktop)"
   if [ "$desktop" = "unknown" ]; then
     notify "Unsupported desktop — see the README for manual setup."
@@ -88,7 +93,19 @@ main() {
     echo "Screenshot to AI: Unknown capture mode: $CAPTURE_MODE" >&2
     exit 1
   fi
-  run "$cmd"
+  bin="${cmd%% *}"
+  # Verify the capture tool is installed (skipped in dry-run, which only simulates).
+  if [ -z "${DRY_RUN:-}" ] && ! backend_available "$cmd"; then
+    notify "Capture tool '$bin' not found — please install it."
+    echo "Screenshot to AI: '$bin' not found. On Debian/Ubuntu: sudo apt install $bin" >&2
+    exit 1
+  fi
+  # Capture; if it fails, do NOT claim success or open the browser.
+  if ! run "$cmd"; then
+    notify "Screenshot capture failed."
+    echo "Screenshot to AI: capture failed: $cmd" >&2
+    exit 1
+  fi
   notify "Captured — opening AI"
   open_url "$AI_URL"
 }

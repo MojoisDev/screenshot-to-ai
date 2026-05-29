@@ -79,4 +79,10 @@ assert_contains "$out2" "EXIT:1" "unknown desktop exits 1"
 )
 assert_eq "$?" "0" "config.example sources to documented defaults"
 
+# backend_available reports whether the capture binary is on PATH.
+backend_available "bash --version" && rc=0 || rc=1
+assert_eq "$rc" "0" "backend_available true for present binary"
+backend_available "definitely-not-a-real-binary-xyz --area --clipboard" && rc=0 || rc=1
+assert_eq "$rc" "1" "backend_available false for missing binary"
+
 finish

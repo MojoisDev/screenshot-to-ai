@@ -18,7 +18,8 @@ separate, additive hotkey.
 
 ## Requirements
 
-- **KDE** (uses `spectacle`) or **GNOME** (uses `gnome-screenshot`)
+- **KDE** (uses `spectacle`, ships with Plasma) or **GNOME** (uses `gnome-screenshot`)
+  - On Ubuntu/Debian GNOME, install it if missing: `sudo apt install gnome-screenshot`
 - `notify-send` (libnotify) for the capture confirmation
 - A default browser (`xdg-open`)
 
@@ -74,6 +75,8 @@ Custom Shortcuts).
   `xdg-open` works and you have a default browser set.
 - **"Unsupported desktop":** auto-detect didn't find KDE/GNOME. Set `BACKEND` in the
   config and bind the hotkey manually.
+- **"Capture tool not found":** the screenshot backend isn't installed. On GNOME:
+  `sudo apt install gnome-screenshot`. On KDE, install `spectacle`.
 
 ## Uninstall
 
