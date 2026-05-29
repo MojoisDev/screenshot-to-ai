@@ -30,4 +30,9 @@ got3="$(grep '^AI_URL=' "$tmp3")"
 assert_eq "$got3" 'AI_URL="https://x.com/?a=1&b=2"' "write_config preserves & in URL"
 rm -f "$tmp3"
 
+# Convert a human combo (KDE style) to GNOME gsettings style.
+assert_eq "$(combo_to_gnome 'Meta+Shift+Z')" "<Super><Shift>z" "Meta+Shift+Z -> GNOME"
+assert_eq "$(combo_to_gnome 'Ctrl+Alt+P')" "<Control><Alt>p" "Ctrl+Alt+P -> GNOME"
+assert_eq "$(combo_to_gnome 'Meta+S')" "<Super>s" "Meta+S -> GNOME"
+
 finish

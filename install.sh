@@ -18,6 +18,29 @@ ai_url_for_choice() {
   esac
 }
 
+combo_to_gnome() {
+  # "Meta+Shift+Z" -> "<Super><Shift>z". Last token is the key (lowercased);
+  # the rest are modifiers wrapped in <>.
+  local combo="$1" out="" i p
+  local -a parts
+  IFS='+' read -ra parts <<< "$combo"
+  local last=$(( ${#parts[@]} - 1 ))
+  for i in "${!parts[@]}"; do
+    p="${parts[$i]}"
+    if [ "$i" -eq "$last" ]; then
+      out+="$(printf '%s' "$p" | tr '[:upper:]' '[:lower:]')"
+    else
+      case "$p" in
+        Meta|Super|Win) out+="<Super>" ;;
+        Shift)          out+="<Shift>" ;;
+        Ctrl|Control)   out+="<Control>" ;;
+        Alt)            out+="<Alt>" ;;
+      esac
+    fi
+  done
+  printf '%s' "$out"
+}
+
 write_config() {
   # write_config <ai_url> — copy template, substitute AI_URL.
   local url="$1"
