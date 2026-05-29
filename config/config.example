@@ -1,0 +1,17 @@
+# Screenshot to AI — configuration.
+# Copy to ~/.config/screenshot-to-ai/config (the installer does this for you).
+
+# Where to send the screenshot. Pick one of the presets below or use any URL.
+#   Google AI Mode : https://www.google.com/search?udm=50   (default)
+#   ChatGPT        : https://chatgpt.com/
+#   Perplexity     : https://www.perplexity.ai/
+#   Google Gemini  : https://gemini.google.com/app
+#   Claude         : https://claude.ai/new
+AI_URL="https://www.google.com/search?udm=50"
+
+# Capture mode: region | fullscreen | window
+CAPTURE_MODE="region"
+
+# Optional: force a screenshot backend if auto-detect guesses wrong.
+# Valid values: spectacle | gnome-screenshot
+# BACKEND="spectacle"

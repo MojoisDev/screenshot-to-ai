@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -u
+cd "$(dirname "$0")/.." || exit 1
+. tests/lib.sh
+
+# Source installer functions without running main.
+. install.sh
+
+# AI URL preset mapping.
+assert_eq "$(ai_url_for_choice 1)" "https://www.google.com/search?udm=50" "choice 1 = Google AI Mode"
+assert_eq "$(ai_url_for_choice 2)" "https://chatgpt.com/" "choice 2 = ChatGPT"
+assert_eq "$(ai_url_for_choice 3)" "https://www.perplexity.ai/" "choice 3 = Perplexity"
+assert_eq "$(ai_url_for_choice 4)" "https://gemini.google.com/app" "choice 4 = Gemini"
+assert_eq "$(ai_url_for_choice 5)" "https://claude.ai/new" "choice 5 = Claude"
+assert_eq "$(ai_url_for_choice 9)" "" "invalid choice = empty"
+
+# write_config copies the template and substitutes AI_URL.
+tmp="$(mktemp)"
+SCREENSHOT_TO_AI_CONFIG="$tmp" write_config "https://example.com/x"
+got="$(grep '^AI_URL=' "$tmp")"
+assert_eq "$got" 'AI_URL="https://example.com/x"' "write_config sets AI_URL"
+# Comments from the template are preserved.
+assert_contains "$(cat "$tmp")" "Capture mode:" "write_config keeps template comments"
+rm -f "$tmp"
+
+# write_config must not let sed metacharacters in the URL corrupt the output.
+tmp3="$(mktemp)"
+SCREENSHOT_TO_AI_CONFIG="$tmp3" write_config "https://x.com/?a=1&b=2"
+got3="$(grep '^AI_URL=' "$tmp3")"
+assert_eq "$got3" 'AI_URL="https://x.com/?a=1&b=2"' "write_config preserves & in URL"
+rm -f "$tmp3"
+
+# Convert a human combo (KDE style) to GNOME gsettings style.
+assert_eq "$(combo_to_gnome 'Meta+Shift+Z')" "<Super><Shift>z" "Meta+Shift+Z -> GNOME"
+assert_eq "$(combo_to_gnome 'Ctrl+Alt+P')" "<Control><Alt>p" "Ctrl+Alt+P -> GNOME"
+assert_eq "$(combo_to_gnome 'Meta+S')" "<Super>s" "Meta+S -> GNOME"
+
+# setup_hotkey_kde writes a launcher .desktop with the command-shortcut flag.
+tmpdesk="$(mktemp)"
+KDE_DESKTOP_FILE="$tmpdesk" KDE_SKIP_KGLOBAL=1 setup_hotkey_kde "Meta+Shift+Z" >/dev/null 2>&1
+content="$(cat "$tmpdesk")"
+assert_contains "$content" "X-KDE-GlobalAccel-CommandShortcut=true" "kde launcher has accel flag"
+assert_contains "$content" "Exec=$HOME/.local/bin/screenshot-to-ai.sh" "kde launcher Exec path"
+assert_contains "$content" "Name=Screenshot to AI" "kde launcher name"
+rm -f "$tmpdesk"
+
+# remove_engine deletes the installed engine script.
+tmpbin="$(mktemp -d)"
+touch "$tmpbin/screenshot-to-ai.sh"
+( . uninstall.sh; BIN_DEST="$tmpbin" remove_engine )
+[ -e "$tmpbin/screenshot-to-ai.sh" ] && rc=1 || rc=0
+assert_eq "$rc" "0" "remove_engine deletes the script"
+rm -rf "$tmpbin"
+
+finish
