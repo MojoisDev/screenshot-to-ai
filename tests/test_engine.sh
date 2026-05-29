@@ -70,4 +70,13 @@ out2="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=sway SCREENSHOT_TO_AI_CONFIG=/nonexistent 
 assert_contains "$out2" "Unsupported desktop" "unknown desktop message"
 assert_contains "$out2" "EXIT:1" "unknown desktop exits 1"
 
+# The shipped example config must source cleanly to the documented default.
+( set -u
+  # shellcheck disable=SC1091
+  . config/config.example
+  [ "$AI_URL" = "https://www.google.com/search?udm=50" ] || exit 1
+  [ "$CAPTURE_MODE" = "region" ] || exit 1
+)
+assert_eq "$?" "0" "config.example sources to documented defaults"
+
 finish
