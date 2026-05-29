@@ -43,13 +43,49 @@ build_capture_cmd() {
       esac
       ;;
     gnome)
-      case "$mode" in
-        region)     echo "gnome-screenshot --area --clipboard" ;;
-        fullscreen) echo "gnome-screenshot --clipboard" ;;
-        window)     echo "gnome-screenshot --window --clipboard" ;;
-      esac
+      if [ "${XDG_SESSION_TYPE:-}" = "wayland" ]; then
+        # Wayland clipboard dies with gnome-screenshot; route through wl-copy.
+        case "$mode" in
+          region)     echo "capture_gnome_wayland --area" ;;
+          fullscreen) echo "capture_gnome_wayland" ;;
+          window)     echo "capture_gnome_wayland --window" ;;
+        esac
+      else
+        case "$mode" in
+          region)     echo "gnome-screenshot --area --clipboard" ;;
+          fullscreen) echo "gnome-screenshot --clipboard" ;;
+          window)     echo "gnome-screenshot --window --clipboard" ;;
+        esac
+      fi
       ;;
   esac
+}
+
+capture_gnome_wayland() {
+  # GNOME/Wayland: gnome-screenshot --clipboard does not persist after it exits
+  # (Wayland clipboards are owned by the source app). Capture to a temp PNG and
+  # hand the bytes to wl-copy, which forks a daemon that keeps the image on the
+  # clipboard after we exit.
+  local tmp rc
+  if ! command -v gnome-screenshot >/dev/null 2>&1; then
+    echo "Screenshot to AI: 'gnome-screenshot' not found. Install: sudo apt install gnome-screenshot" >&2
+    return 1
+  fi
+  if ! command -v wl-copy >/dev/null 2>&1; then
+    echo "Screenshot to AI: 'wl-copy' not found. Install: sudo apt install wl-clipboard" >&2
+    return 1
+  fi
+  tmp="$(mktemp --suffix=.png)" || return 1
+  gnome-screenshot "$@" --file="$tmp"
+  rc=$?
+  if [ "$rc" -eq 0 ] && [ -s "$tmp" ]; then
+    wl-copy --type image/png < "$tmp"
+    rc=$?
+  elif [ "$rc" -eq 0 ]; then
+    rc=1
+  fi
+  rm -f "$tmp"
+  return "$rc"
 }
 
 run() {

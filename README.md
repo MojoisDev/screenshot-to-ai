@@ -20,6 +20,7 @@ separate, additive hotkey.
 
 - **KDE** (uses `spectacle`, ships with Plasma) or **GNOME** (uses `gnome-screenshot`)
   - On Ubuntu/Debian GNOME, install it if missing: `sudo apt install gnome-screenshot`
+  - On GNOME **Wayland**, also install `wl-clipboard` so the screenshot stays on the clipboard: `sudo apt install wl-clipboard`
 - `notify-send` (libnotify) for the capture confirmation
 - A default browser (`xdg-open`)
 
@@ -77,6 +78,7 @@ Custom Shortcuts).
   config and bind the hotkey manually.
 - **"Capture tool not found":** the screenshot backend isn't installed. On GNOME:
   `sudo apt install gnome-screenshot`. On KDE, install `spectacle`.
+- **Browser opens but Ctrl+V pastes nothing (GNOME Wayland):** install `wl-clipboard` (`sudo apt install wl-clipboard`). Wayland clears the clipboard when the screenshot tool exits; this keeps the image available to paste.
 
 ## Uninstall
 

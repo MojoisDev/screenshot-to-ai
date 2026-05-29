@@ -46,10 +46,18 @@ assert_eq "$(build_capture_cmd kde fullscreen)" \
 assert_eq "$(build_capture_cmd kde window)" \
   "spectacle --activewindow --background --nonotify --copy-image" "kde window"
 
-# GNOME capture commands per mode.
-assert_eq "$(build_capture_cmd gnome region)" "gnome-screenshot --area --clipboard" "gnome region"
-assert_eq "$(build_capture_cmd gnome fullscreen)" "gnome-screenshot --clipboard" "gnome fullscreen"
-assert_eq "$(build_capture_cmd gnome window)" "gnome-screenshot --window --clipboard" "gnome window"
+# GNOME capture commands per mode (X11 session: direct --clipboard works).
+XDG_SESSION_TYPE="x11"
+assert_eq "$(build_capture_cmd gnome region)" "gnome-screenshot --area --clipboard" "gnome region (x11)"
+assert_eq "$(build_capture_cmd gnome fullscreen)" "gnome-screenshot --clipboard" "gnome fullscreen (x11)"
+assert_eq "$(build_capture_cmd gnome window)" "gnome-screenshot --window --clipboard" "gnome window (x11)"
+
+# GNOME on Wayland: must route through wl-copy via the helper.
+XDG_SESSION_TYPE="wayland"
+assert_eq "$(build_capture_cmd gnome region)" "capture_gnome_wayland --area" "gnome region (wayland)"
+assert_eq "$(build_capture_cmd gnome fullscreen)" "capture_gnome_wayland" "gnome fullscreen (wayland)"
+assert_eq "$(build_capture_cmd gnome window)" "capture_gnome_wayland --window" "gnome window (wayland)"
+unset XDG_SESSION_TYPE
 
 # Unknown mode yields empty string.
 assert_eq "$(build_capture_cmd kde bogus)" "" "unknown mode is empty"

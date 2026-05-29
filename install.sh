@@ -167,6 +167,9 @@ main() {
         echo "Could not register the GNOME shortcut automatically (gsettings not found)."
         echo "The engine is installed at $BIN_DEST/screenshot-to-ai.sh — bind it to a key manually."
       fi
+      if [ "${XDG_SESSION_TYPE:-}" = "wayland" ] && ! command -v wl-copy >/dev/null 2>&1; then
+        echo "NOTE: On GNOME Wayland, install wl-clipboard so pasting works: sudo apt install wl-clipboard"
+      fi
       ;;
     *)
       echo "Could not detect KDE or GNOME. The engine is installed at"
