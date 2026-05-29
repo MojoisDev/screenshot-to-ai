@@ -24,8 +24,11 @@ write_config() {
   local dest="${SCREENSHOT_TO_AI_CONFIG:-$HOME/.config/screenshot-to-ai/config}"
   mkdir -p "$(dirname "$dest")"
   cp "$SCRIPT_DIR/config/config.example" "$dest"
-  # Replace the AI_URL line; use a non-/ delimiter since URLs contain slashes.
-  sed -i "s|^AI_URL=.*|AI_URL=\"$url\"|" "$dest"
+  # Escape characters that are special in a sed replacement (\ and &), so URLs
+  # with query strings are written verbatim. Use a non-/ delimiter for slashes.
+  local escaped
+  escaped="$(printf '%s' "$url" | sed -e 's/[\\&]/\\&/g')"
+  sed -i "s|^AI_URL=.*|AI_URL=\"$escaped\"|" "$dest"
 }
 
 # Run main only when executed directly (not when sourced by tests).

@@ -23,4 +23,11 @@ assert_eq "$got" 'AI_URL="https://example.com/x"' "write_config sets AI_URL"
 assert_contains "$(cat "$tmp")" "Capture mode:" "write_config keeps template comments"
 rm -f "$tmp"
 
+# write_config must not let sed metacharacters in the URL corrupt the output.
+tmp3="$(mktemp)"
+SCREENSHOT_TO_AI_CONFIG="$tmp3" write_config "https://x.com/?a=1&b=2"
+got3="$(grep '^AI_URL=' "$tmp3")"
+assert_eq "$got3" 'AI_URL="https://x.com/?a=1&b=2"' "write_config preserves & in URL"
+rm -f "$tmp3"
+
 finish
