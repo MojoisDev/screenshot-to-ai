@@ -54,4 +54,20 @@ assert_eq "$(build_capture_cmd gnome window)" "gnome-screenshot --window --clipb
 # Unknown mode yields empty string.
 assert_eq "$(build_capture_cmd kde bogus)" "" "unknown mode is empty"
 
+# main() dry-run: prints what it WOULD do, without touching the desktop.
+tmp2="$(mktemp)"
+printf 'AI_URL="https://example.com/ai"\nCAPTURE_MODE="region"\n' > "$tmp2"
+out="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=KDE SCREENSHOT_TO_AI_CONFIG="$tmp2" \
+  bash bin/screenshot-to-ai.sh)"
+assert_contains "$out" "RUN: spectacle --region --background --nonotify --copy-image" "main runs capture"
+assert_contains "$out" "NOTIFY: Captured" "main notifies"
+assert_contains "$out" "OPEN: https://example.com/ai" "main opens AI URL"
+rm -f "$tmp2"
+
+# main() with unknown desktop exits non-zero and reports it.
+out2="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=sway SCREENSHOT_TO_AI_CONFIG=/nonexistent \
+  bash bin/screenshot-to-ai.sh; echo "EXIT:$?")"
+assert_contains "$out2" "Unsupported desktop" "unknown desktop message"
+assert_contains "$out2" "EXIT:1" "unknown desktop exits 1"
+
 finish

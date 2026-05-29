@@ -52,6 +52,47 @@ build_capture_cmd() {
   esac
 }
 
+run() {
+  # Execute a command string, or echo it in dry-run mode.
+  if [ -n "${DRY_RUN:-}" ]; then echo "RUN: $1"; else eval "$1"; fi
+}
+
+notify() {
+  if [ -n "${DRY_RUN:-}" ]; then
+    echo "NOTIFY: $1"
+  else
+    notify-send "Screenshot to AI" "$1" >/dev/null 2>&1 || true
+  fi
+}
+
+open_url() {
+  if [ -n "${DRY_RUN:-}" ]; then
+    echo "OPEN: $1"
+  else
+    setsid xdg-open "$1" >/dev/null 2>&1 &
+  fi
+}
+
+main() {
+  load_config
+  local desktop cmd
+  desktop="$(detect_desktop)"
+  if [ "$desktop" = "unknown" ]; then
+    notify "Unsupported desktop — see the README for manual setup."
+    echo "Screenshot to AI: Unsupported desktop." >&2
+    exit 1
+  fi
+  cmd="$(build_capture_cmd "$desktop" "$CAPTURE_MODE")"
+  if [ -z "$cmd" ]; then
+    notify "Unknown capture mode: $CAPTURE_MODE"
+    echo "Screenshot to AI: Unknown capture mode: $CAPTURE_MODE" >&2
+    exit 1
+  fi
+  run "$cmd"
+  notify "Captured — opening AI"
+  open_url "$AI_URL"
+}
+
 # Run main only when executed directly (not when sourced by tests).
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   main "$@"
