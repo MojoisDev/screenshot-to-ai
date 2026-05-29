@@ -159,6 +159,9 @@ main() {
       setup_hotkey_kde "$combo"
       echo "Registered KDE shortcut: $combo"
       echo "NOTE: On KDE the shortcut activates after you log out and back in."
+      if [ "${XDG_SESSION_TYPE:-}" = "wayland" ] && ! command -v wl-copy >/dev/null 2>&1; then
+        echo "NOTE: On KDE Wayland, install wl-clipboard so pasting works: sudo apt install wl-clipboard"
+      fi
       ;;
     gnome)
       if setup_hotkey_gnome "$combo" && command -v gsettings >/dev/null 2>&1; then

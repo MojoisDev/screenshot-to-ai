@@ -38,13 +38,21 @@ BACKEND="gnome-screenshot"
 assert_eq "$(detect_desktop)" "gnome" "BACKEND=gnome-screenshot forces gnome"
 BACKEND=""
 
-# KDE capture commands per mode.
+# KDE capture commands (X11 session: direct --copy-image works).
+XDG_SESSION_TYPE="x11"
 assert_eq "$(build_capture_cmd kde region)" \
-  "spectacle --region --background --nonotify --copy-image" "kde region"
+  "spectacle --region --background --nonotify --copy-image" "kde region (x11)"
 assert_eq "$(build_capture_cmd kde fullscreen)" \
-  "spectacle --fullscreen --background --nonotify --copy-image" "kde fullscreen"
+  "spectacle --fullscreen --background --nonotify --copy-image" "kde fullscreen (x11)"
 assert_eq "$(build_capture_cmd kde window)" \
-  "spectacle --activewindow --background --nonotify --copy-image" "kde window"
+  "spectacle --activewindow --background --nonotify --copy-image" "kde window (x11)"
+
+# KDE on Wayland: must route through wl-copy via the helper.
+XDG_SESSION_TYPE="wayland"
+assert_eq "$(build_capture_cmd kde region)" "capture_kde_wayland --region" "kde region (wayland)"
+assert_eq "$(build_capture_cmd kde fullscreen)" "capture_kde_wayland --fullscreen" "kde fullscreen (wayland)"
+assert_eq "$(build_capture_cmd kde window)" "capture_kde_wayland --activewindow" "kde window (wayland)"
+unset XDG_SESSION_TYPE
 
 # GNOME capture commands per mode (X11 session: direct --clipboard works).
 XDG_SESSION_TYPE="x11"
@@ -65,12 +73,20 @@ assert_eq "$(build_capture_cmd kde bogus)" "" "unknown mode is empty"
 # main() dry-run: prints what it WOULD do, without touching the desktop.
 tmp2="$(mktemp)"
 printf 'AI_URL="https://example.com/ai"\nCAPTURE_MODE="region"\n' > "$tmp2"
-out="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=KDE SCREENSHOT_TO_AI_CONFIG="$tmp2" \
+out="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=KDE XDG_SESSION_TYPE=x11 SCREENSHOT_TO_AI_CONFIG="$tmp2" \
   bash bin/screenshot-to-ai.sh)"
 assert_contains "$out" "RUN: spectacle --region --background --nonotify --copy-image" "main runs capture"
 assert_contains "$out" "NOTIFY: Captured" "main notifies"
 assert_contains "$out" "OPEN: https://example.com/ai" "main opens AI URL"
 rm -f "$tmp2"
+
+# main() on KDE Wayland routes capture through the wl-copy helper.
+tmpw="$(mktemp)"
+printf 'AI_URL="https://example.com/ai"\nCAPTURE_MODE="region"\n' > "$tmpw"
+outw="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=KDE XDG_SESSION_TYPE=wayland SCREENSHOT_TO_AI_CONFIG="$tmpw" \
+  bash bin/screenshot-to-ai.sh)"
+assert_contains "$outw" "RUN: capture_kde_wayland --region" "main (KDE wayland) uses wl-copy helper"
+rm -f "$tmpw"
 
 # main() with unknown desktop exits non-zero and reports it.
 out2="$(DRY_RUN=1 XDG_CURRENT_DESKTOP=sway SCREENSHOT_TO_AI_CONFIG=/nonexistent \
