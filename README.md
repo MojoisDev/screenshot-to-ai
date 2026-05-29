@@ -66,7 +66,8 @@ Custom Shortcuts).
 ## Supported setups
 
 - **KDE Plasma 6 (Wayland):** tested.
-- **GNOME:** community-tested — please report results.
+- **GNOME (Ubuntu, Wayland):** tested — needs `gnome-screenshot` and `wl-clipboard` installed.
+- **GNOME on X11:** should work (uses the direct clipboard path); reports welcome.
 
 ## Troubleshooting
 
