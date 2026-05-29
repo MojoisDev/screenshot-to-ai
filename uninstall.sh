@@ -13,7 +13,11 @@ remove_hotkey_kde() {
   local desktop_file="${KDE_DESKTOP_FILE:-$HOME/.local/share/applications/screenshot-to-ai.desktop}"
   rm -f "$desktop_file"
   if command -v kwriteconfig6 >/dev/null 2>&1; then
-    kwriteconfig6 --file kglobalshortcutsrc --group "screenshot-to-ai.desktop" --delete-group 2>/dev/null || true
+    # kwriteconfig6 has no --delete-group; remove the group's keys individually.
+    kwriteconfig6 --file kglobalshortcutsrc --group "screenshot-to-ai.desktop" \
+      --key "_launch" --delete 2>/dev/null || true
+    kwriteconfig6 --file kglobalshortcutsrc --group "screenshot-to-ai.desktop" \
+      --key "_k_friendly_name" --delete 2>/dev/null || true
   fi
 }
 
@@ -40,7 +44,14 @@ main() {
   printf "Also delete config at ~/.config/screenshot-to-ai? [y/N]: "
   read -r ans
   case "$ans" in
-    y|Y) rm -rf "$HOME/.config/screenshot-to-ai"; echo "Config deleted." ;;
+    y|Y)
+      if [ -n "$HOME" ]; then
+        rm -rf "$HOME/.config/screenshot-to-ai"
+        echo "Config deleted."
+      else
+        echo "HOME is empty; skipping config deletion for safety."
+      fi
+      ;;
     *)   echo "Config kept." ;;
   esac
   echo "Uninstalled."
