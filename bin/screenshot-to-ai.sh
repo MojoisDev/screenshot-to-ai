@@ -18,6 +18,19 @@ load_config() {
   fi
 }
 
+detect_desktop() {
+  # Explicit backend override wins.
+  case "${BACKEND:-}" in
+    spectacle) echo "kde"; return ;;
+    gnome-screenshot) echo "gnome"; return ;;
+  esac
+  case "${XDG_CURRENT_DESKTOP:-}" in
+    *KDE*) echo "kde" ;;
+    *GNOME*) echo "gnome" ;;
+    *) echo "unknown" ;;
+  esac
+}
+
 # Run main only when executed directly (not when sourced by tests).
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   main "$@"

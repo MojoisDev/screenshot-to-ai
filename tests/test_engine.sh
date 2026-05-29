@@ -21,4 +21,21 @@ assert_eq "$AI_URL" "https://example.com/" "config overrides AI_URL"
 assert_eq "$CAPTURE_MODE" "fullscreen" "config overrides CAPTURE_MODE"
 rm -f "$tmp"
 
+# Desktop detection from XDG_CURRENT_DESKTOP.
+BACKEND=""
+XDG_CURRENT_DESKTOP="KDE"
+assert_eq "$(detect_desktop)" "kde" "detect KDE"
+XDG_CURRENT_DESKTOP="ubuntu:GNOME"
+assert_eq "$(detect_desktop)" "gnome" "detect GNOME"
+XDG_CURRENT_DESKTOP="sway"
+assert_eq "$(detect_desktop)" "unknown" "detect unknown"
+
+# Explicit BACKEND overrides detection.
+XDG_CURRENT_DESKTOP="sway"
+BACKEND="spectacle"
+assert_eq "$(detect_desktop)" "kde" "BACKEND=spectacle forces kde"
+BACKEND="gnome-screenshot"
+assert_eq "$(detect_desktop)" "gnome" "BACKEND=gnome-screenshot forces gnome"
+BACKEND=""
+
 finish
