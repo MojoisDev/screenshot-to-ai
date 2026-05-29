@@ -64,7 +64,7 @@ setup_hotkey_kde() {
 Type=Application
 Name=Screenshot to AI
 Comment=Capture a screen region and open your AI of choice
-Exec=$HOME/.local/bin/screenshot-to-ai.sh
+Exec=$BIN_DEST/screenshot-to-ai.sh
 Icon=spectacle
 Terminal=false
 NoDisplay=true
@@ -98,7 +98,7 @@ setup_hotkey_gnome() {
   esac
   gsettings set "$schema" custom-keybindings "$list"
   gsettings set "$schema.custom-keybinding:$path" name "Screenshot to AI"
-  gsettings set "$schema.custom-keybinding:$path" command "$HOME/.local/bin/screenshot-to-ai.sh"
+  gsettings set "$schema.custom-keybinding:$path" command "$BIN_DEST/screenshot-to-ai.sh"
   gsettings set "$schema.custom-keybinding:$path" binding "$binding"
 }
 
@@ -161,8 +161,12 @@ main() {
       echo "NOTE: On KDE the shortcut activates after you log out and back in."
       ;;
     gnome)
-      setup_hotkey_gnome "$combo"
-      echo "Registered GNOME shortcut: $combo (active immediately)."
+      if setup_hotkey_gnome "$combo" && command -v gsettings >/dev/null 2>&1; then
+        echo "Registered GNOME shortcut: $combo (active immediately)."
+      else
+        echo "Could not register the GNOME shortcut automatically (gsettings not found)."
+        echo "The engine is installed at $BIN_DEST/screenshot-to-ai.sh — bind it to a key manually."
+      fi
       ;;
     *)
       echo "Could not detect KDE or GNOME. The engine is installed at"

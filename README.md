@@ -4,7 +4,7 @@
 anything on screen, and your screenshot lands in your chosen AI page — ready to
 paste and ask.
 
-![demo](docs/demo.gif) <!-- TODO: record a 5-second demo GIF and place at docs/demo.gif -->
+<!-- TODO: record a 5-second demo GIF (press key -> drag box -> AI answers) and embed it here: ![demo](docs/demo.gif) -->
 
 ## How it works
 
