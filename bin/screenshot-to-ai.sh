@@ -31,6 +31,27 @@ detect_desktop() {
   esac
 }
 
+build_capture_cmd() {
+  # build_capture_cmd <kde|gnome> <region|fullscreen|window>
+  local desktop="$1" mode="$2"
+  case "$desktop" in
+    kde)
+      case "$mode" in
+        region)     echo "spectacle --region --background --nonotify --copy-image" ;;
+        fullscreen) echo "spectacle --fullscreen --background --nonotify --copy-image" ;;
+        window)     echo "spectacle --activewindow --background --nonotify --copy-image" ;;
+      esac
+      ;;
+    gnome)
+      case "$mode" in
+        region)     echo "gnome-screenshot --area --clipboard" ;;
+        fullscreen) echo "gnome-screenshot --clipboard" ;;
+        window)     echo "gnome-screenshot --window --clipboard" ;;
+      esac
+      ;;
+  esac
+}
+
 # Run main only when executed directly (not when sourced by tests).
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   main "$@"

@@ -38,4 +38,20 @@ BACKEND="gnome-screenshot"
 assert_eq "$(detect_desktop)" "gnome" "BACKEND=gnome-screenshot forces gnome"
 BACKEND=""
 
+# KDE capture commands per mode.
+assert_eq "$(build_capture_cmd kde region)" \
+  "spectacle --region --background --nonotify --copy-image" "kde region"
+assert_eq "$(build_capture_cmd kde fullscreen)" \
+  "spectacle --fullscreen --background --nonotify --copy-image" "kde fullscreen"
+assert_eq "$(build_capture_cmd kde window)" \
+  "spectacle --activewindow --background --nonotify --copy-image" "kde window"
+
+# GNOME capture commands per mode.
+assert_eq "$(build_capture_cmd gnome region)" "gnome-screenshot --area --clipboard" "gnome region"
+assert_eq "$(build_capture_cmd gnome fullscreen)" "gnome-screenshot --clipboard" "gnome fullscreen"
+assert_eq "$(build_capture_cmd gnome window)" "gnome-screenshot --window --clipboard" "gnome window"
+
+# Unknown mode yields empty string.
+assert_eq "$(build_capture_cmd kde bogus)" "" "unknown mode is empty"
+
 finish
