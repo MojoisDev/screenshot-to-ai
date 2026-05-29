@@ -52,12 +52,29 @@ the maintainer's KDE Plasma 6 / Wayland machine.
 
 ## Features (v1)
 
-1. **Configurable AI destination**, default Google AI Mode
-   (`https://www.google.com/search?udm=50`). Install-time picker offers
-   Google / ChatGPT / Perplexity / Gemini / Claude; writes the URL to config.
-2. **Capture confirmation** — a small desktop notification when the shot is taken,
+1. **Configurable AI destination**, default Google AI Mode. The install-time picker
+   offers a numbered list with the URL pre-filled for each option, and the user may
+   also enter any custom URL. The choice is written to `AI_URL` in config. Shipped
+   options:
+
+   | AI | URL |
+   |----|-----|
+   | Google AI Mode (default) | `https://www.google.com/search?udm=50` |
+   | ChatGPT | `https://chatgpt.com/` |
+   | Perplexity | `https://www.perplexity.ai/` |
+   | Google Gemini | `https://gemini.google.com/app` |
+   | Claude | `https://claude.ai/new` |
+
+   (`udm=50` is verified as Google AI Mode; the others are each service's normal
+   entry page where the user pastes the screenshot.)
+2. **Configurable hotkey** — the installer prompts for the key combo, defaulting to
+   the suggested `Meta+Shift+Z`. The README documents how to change it later (KDE via
+   System Settings → Shortcuts or re-running the installer; GNOME via the custom
+   keybinding). The chosen combo is applied through the desktop-specific mechanism
+   in the installer.
+3. **Capture confirmation** — a small desktop notification when the shot is taken,
    so the user knows the hotkey fired.
-3. **Capture modes** — region (default), full screen, active window; selected via
+4. **Capture modes** — region (default), full screen, active window; selected via
    config and/or a flag to the script.
 
 ## Architecture / components
@@ -92,7 +109,12 @@ ss Script/
 Plain key=value so users never edit code:
 
 ```
-# Where to send the screenshot
+# Where to send the screenshot. Pick one of the presets below or use any URL.
+#   Google AI Mode : https://www.google.com/search?udm=50   (default)
+#   ChatGPT        : https://chatgpt.com/
+#   Perplexity     : https://www.perplexity.ai/
+#   Google Gemini  : https://gemini.google.com/app
+#   Claude         : https://claude.ai/new
 AI_URL="https://www.google.com/search?udm=50"
 # Capture mode: region | fullscreen | window
 CAPTURE_MODE="region"
@@ -100,12 +122,17 @@ CAPTURE_MODE="region"
 # BACKEND="spectacle"
 ```
 
+The hotkey is not stored here — it lives in the desktop's own shortcut system
+(set by the installer). Change it via the desktop's settings or by re-running
+the installer.
+
 ### Installer — `install.sh`
 
 1. Copy the engine to `~/.local/bin/` and make it executable.
 2. Create the default config if none exists.
-3. Prompt for the AI destination (picker) and write `AI_URL`.
-4. Detect desktop and set up the hotkey automatically:
+3. Prompt for the AI destination (numbered picker with URLs, or custom) and write `AI_URL`.
+4. Prompt for the hotkey combo (default `Meta+Shift+Z`), then detect the desktop and
+   set up that hotkey automatically:
    - **KDE:** write the `.desktop` launcher (`X-KDE-GlobalAccel-CommandShortcut=true`)
      and the `kglobalshortcutsrc` entry. Warn the user the binding **takes effect
      after logout/login** (kglobalaccel is hosted in kwin_wayland and only scans at
