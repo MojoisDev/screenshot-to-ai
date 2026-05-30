@@ -4,7 +4,7 @@
 anything on screen, and your screenshot lands in your chosen AI page — ready to
 paste and ask.
 
-<!-- TODO: record a 5-second demo GIF (press key -> drag box -> AI answers) and embed it here: ![demo](docs/demo.gif) -->
+![Screenshot to AI demo: press the hotkey, drag a box, the AI page opens ready to paste](docs/demo.gif)
 
 ## How it works
 
@@ -22,13 +22,13 @@ separate, additive hotkey.
   - On Ubuntu/Debian GNOME, install it if missing: `sudo apt install gnome-screenshot`
   - On GNOME **Wayland**, also install `wl-clipboard` so the screenshot stays on the clipboard: `sudo apt install wl-clipboard`
   - On KDE **Wayland**, also install `wl-clipboard`: `sudo apt install wl-clipboard`
-- `notify-send` (libnotify) for the capture confirmation
+- `notify-send` (libnotify) for the capture confirmation — **without it the tool still works, but you get no on-screen confirmation when the shot is taken.** Install on Debian/Ubuntu: `sudo apt install libnotify-bin`
 - A default browser (`xdg-open`)
 
 ## Install
 
 ```bash
-git clone <your-repo-url> screenshot-to-ai
+git clone https://github.com/MojoisDev/screenshot-to-ai.git screenshot-to-ai
 cd screenshot-to-ai
 ./install.sh
 ```
