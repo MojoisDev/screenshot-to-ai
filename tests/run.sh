@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.." || exit 1
 status=0
 
 echo "== Syntax check (bash -n) =="
-for f in bin/screenshot-to-ai.sh install.sh uninstall.sh; do
+for f in bin/screenshot-to-ai.sh install.sh uninstall.sh tools/record-demo.sh; do
   if [ -f "$f" ]; then
     if bash -n "$f"; then echo "OK: $f"; else echo "SYNTAX FAIL: $f"; status=1; fi
   fi
