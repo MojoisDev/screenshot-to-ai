@@ -1,5 +1,10 @@
 # Screenshot to AI
 
+[![Latest release](https://img.shields.io/github/v/release/MojoisDev/screenshot-to-ai?color=b8ff3d&label=release)](https://github.com/MojoisDev/screenshot-to-ai/releases)
+[![License: MIT](https://img.shields.io/github/license/MojoisDev/screenshot-to-ai?color=57e0ff)](LICENSE)
+![Platform: KDE & GNOME](https://img.shields.io/badge/desktop-KDE%20%7C%20GNOME-blue)
+![Session: Wayland & X11](https://img.shields.io/badge/session-Wayland%20%7C%20X11-lightgrey)
+
 **Circle to Search for the Linux desktop.** Press a hotkey, drag a box around
 anything on screen, and your screenshot lands in your chosen AI page — ready to
 paste and ask.
