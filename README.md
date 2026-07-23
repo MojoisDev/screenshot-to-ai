@@ -4,7 +4,7 @@
 anything on screen, and your screenshot lands in your chosen AI page — ready to
 paste and ask.
 
-![Screenshot to AI demo: press the hotkey, drag a box, the AI page opens ready to paste](docs/demo.gif)
+![Screenshot to AI: press a hotkey, drag a box around anything on screen, and it lands in your AI — ready to paste and ask (KDE & GNOME, Wayland & X11)](docs/hero.png)
 
 ## How it works
 
