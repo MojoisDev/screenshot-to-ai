@@ -11,6 +11,12 @@ paste and ask.
 
 ![Screenshot to AI: press a hotkey, drag a box around anything on screen, and it lands in your AI — ready to paste and ask (KDE & GNOME, Wayland & X11)](docs/hero.png)
 
+### See it in action
+
+Hotkey → drag a box → the AI page opens with your screenshot pasted → ask, and it answers:
+
+![Demo: pressing the hotkey, capturing a window, the AI page opening with the screenshot already pasted, then answering the question about it](docs/demo.gif)
+
 ## How it works
 
 1. Press your hotkey (default `Meta+Shift+Z`).
