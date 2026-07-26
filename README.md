@@ -13,9 +13,10 @@ paste and ask.
 
 ### See it in action
 
-Hotkey → drag a box → the AI page opens with your screenshot pasted → ask, and it answers:
+Hotkey → drag a box → the AI page opens with the screenshot on your clipboard →
+press Ctrl+V, ask, and it answers:
 
-![Demo: pressing the hotkey, capturing a window, the AI page opening with the screenshot already pasted, then answering the question about it](docs/demo.gif)
+![Demo: pressing the hotkey, capturing a window, the AI page opening, then pasting the screenshot with Ctrl+V and asking a question about it](docs/demo.gif)
 
 ## How it works
 
